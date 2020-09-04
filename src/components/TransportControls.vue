@@ -11,7 +11,7 @@
 			</button>
 		</li>
 		<li>
-			<button class="start-tone" @click="reset">
+			<button class="start-tone" @click="stopPlaying">
 				<span class="material-icons">
 					stop
 				</span>
@@ -31,17 +31,7 @@
 import { mapState } from 'vuex';
 
 export default {
-	data() {
-		return {
-			initialState: true,
-		};
-	},
 	computed: mapState(['playing', 'toneInitialised']),
-	watch: {
-		playing(newValue) {
-			if (newValue) this.initialState = false;
-		},
-	},
 	methods: {
 		togglePlaying() {
 			if (!this.toneInitialised) {
@@ -49,13 +39,11 @@ export default {
 			}
 			this.$store.commit('togglePlaying');
 		},
-		reset() {
-			if (this.initialState) return;
-			this.initialState = true;
-			this.$store.dispatch('resetPlaying');
+		stopPlaying() {
+			this.$store.dispatch('stopPlaying');
 		},
 		resetSequences() {
-			this.$store.dispatch('resetSequences');
+			this.$store.dispatch('randomiseTunedSequences');
 		},
 	},
 };
@@ -84,6 +72,6 @@ export default {
 }
 
 .material-icons {
-	font-size: 40px;
+	font-size: 30px;
 }
 </style>

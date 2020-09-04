@@ -1,61 +1,34 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { start, Transport, MembraneSynth, NoiseSynth, PolySynth } from 'tone';
-
-const SEQUENCE_LENGTH = 16;
+import { start, Transport } from 'tone';
+import { getRandomScale, getEmptySequence } from './helpers';
+import { kick, snare, synth } from './constants/synths';
+import { Sequence } from './classes';
+import { SEQUENCE_LENGTH, CHANCE_OF_STEP } from './constants';
 
 Vue.use(Vuex);
-
-function createEmptySequence() {
-	let sequence = [];
-	for (let i = 0; i < SEQUENCE_LENGTH; i++) sequence.push(false);
-	return sequence;
-}
-
-class Sequence {
-	constructor(synth, note, label) {
-		this.sequence = createEmptySequence();
-		this.label = label;
-		this.sound = new Sound(synth, note);
-	}
-}
-
-class Sound {
-	constructor(synth, note = null) {
-		this.synth = synth;
-		this.note = note;
-	}
-
-	trigger(duration, time) {
-		if (this.note) {
-			this.synth.triggerAttackRelease(this.note, duration, time);
-		} else {
-			this.synth.triggerAttackRelease(duration, time);
-		}
-	}
-}
-
-let kick = new MembraneSynth().toDestination();
-let snare = new NoiseSynth().toDestination();
-let synth = new PolySynth().toDestination();
 
 export default new Vuex.Store({
 	state: {
 		activeStep: -1,
 		playing: false,
-		sequences: [
-			new Sequence(synth, 'e4', 'e'),
-			new Sequence(synth, 'd4', 'd'),
-			new Sequence(synth, 'c4', 'c'),
-			new Sequence(synth, 'b3', 'b'),
-			new Sequence(synth, 'a3', 'a'),
-			new Sequence(synth, 'g3', 'g'),
-			new Sequence(synth, 'f#3', 'f#'),
-			new Sequence(synth, 'e3', 'e'),
-			new Sequence(snare, null, 'S'),
-			new Sequence(kick, 'c1', 'K'),
-		],
+		sequences: {
+			tuned: getRandomScale().map((note) => new Sequence(synth, note)),
+			drums: {
+				kick: new Sequence(kick, 'e1'),
+				snare: new Sequence(snare, null),
+			},
+		},
 		toneInitialised: false,
+	},
+	getters: {
+		allSequences(state) {
+			let {
+				drums: { kick, snare },
+				tuned,
+			} = state.sequences;
+			return [kick, snare, ...tuned];
+		},
 	},
 	mutations: {
 		initialiseTone(state) {
@@ -77,29 +50,74 @@ export default new Vuex.Store({
 				Transport.pause();
 			}
 		},
-		updateSequence(state, { index, sequence }) {
-			state.sequences[index].sequence = sequence;
+		updateSequence(state, { key, sequence, type }) {
+			state.sequences[type][key].sequence = sequence;
+		},
+		updateSequenceStep(state, { sequenceType, sequenceIndex, stepIndex, stepValue }) {
+			Vue.set(
+				state.sequences[sequenceType][sequenceIndex].sequence,
+				stepIndex,
+				stepValue,
+			);
 		},
 	},
 	actions: {
-		resetPlaying({ commit, dispatch }) {
-			commit('updatePlaying', false);
-			dispatch('resetActiveStep');
-		},
-		resetSequences({ state, commit, dispatch }) {
-			state.sequences.forEach((_, index) => {
-				commit('updateSequence', { index, sequence: createEmptySequence() });
-			});
-			dispatch('resetActiveStep');
+		randomiseTunedSequences({ state, commit, dispatch }) {
+			let { tuned: tunedSequences } = state.sequences;
+			dispatch('resetSequences', 'tuned');
+
+			let randomSequenceIndex = () =>
+				Math.floor(Math.random() * tunedSequences.length);
+			let shouldAddStep = () => Math.random() < CHANCE_OF_STEP;
+
+			for (let step = 0; step < SEQUENCE_LENGTH; step++) {
+				if (shouldAddStep()) {
+					commit('updateSequenceStep', {
+						sequenceType: 'tuned',
+						sequenceIndex: randomSequenceIndex(),
+						stepIndex: step,
+						stepValue: true,
+					});
+				}
+			}
 		},
 		resetActiveStep({ commit }) {
 			commit('updateActiveStep', -1);
 		},
-		step({ state: { activeStep }, commit }) {
+		resetSequences({ state: { sequences }, commit }, type) {
+			sequences[type].forEach((_, key) => {
+				commit('updateSequence', {
+					key,
+					type: 'tuned',
+					sequence: getEmptySequence(),
+				});
+			});
+		},
+		setMotorikBeat({ commit }) {
+			let kick = [true, true, false, true];
+			let snare = [false, false, true, false];
+
+			commit('updateSequence', {
+				key: 'kick',
+				type: 'drums',
+				sequence: [...kick, ...kick, ...kick, ...kick],
+			});
+			commit('updateSequence', {
+				key: 'snare',
+				type: 'drums',
+				sequence: [...snare, ...snare, ...snare, ...snare],
+			});
+		},
+		step({ state: { activeStep, playing }, commit }) {
+			if (!playing) return;
 			commit(
 				'updateActiveStep',
 				activeStep < SEQUENCE_LENGTH - 1 ? activeStep + 1 : 0,
 			);
+		},
+		stopPlaying({ commit, dispatch }) {
+			commit('updatePlaying', false);
+			dispatch('resetActiveStep');
 		},
 	},
 });
