@@ -1,3 +1,5 @@
+const MAX_NOTES = 12;
+
 export default function getRandomScale() {
 	let availableNotes = [
 		'e2',
@@ -16,8 +18,9 @@ export default function getRandomScale() {
 		'd4',
 		'e4',
 	];
+
 	let randomNoteIndex = () => Math.floor(Math.random() * availableNotes.length);
-	let randomNumberOfNotes = 3 + Math.ceil(Math.random() * (availableNotes.length - 3));
+	let randomNumberOfNotes = 3 + Math.ceil(Math.random() * (MAX_NOTES - 3));
 
 	let noteIndexes = [];
 
