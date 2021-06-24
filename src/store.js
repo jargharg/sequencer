@@ -95,18 +95,19 @@ export default new Vuex.Store({
 			});
 		},
 		setMotorikBeat({ commit }) {
-			let kick = [true, true, false, true];
-			let snare = [false, false, true, false];
+			let buildSequence = (seq) => Array.from(seq).map((step) => step === '1');
+			let kickSequence = buildSequence('1101110111011101');
+			let snareSequence = buildSequence('0010001000100010');
 
 			commit('updateSequence', {
 				key: 'kick',
 				type: 'drums',
-				sequence: [...kick, ...kick, ...kick, ...kick],
+				sequence: kickSequence,
 			});
 			commit('updateSequence', {
 				key: 'snare',
 				type: 'drums',
-				sequence: [...snare, ...snare, ...snare, ...snare],
+				sequence: snareSequence,
 			});
 		},
 		step({ state: { activeStep, playing }, commit }) {
