@@ -3,14 +3,14 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"start": "npm run serve",
+		"start": "yarn serve",
 		"serve": "vue-cli-service serve",
 		"build": "vue-cli-service build",
-		"lint": "vue-cli-service lint"
+		"lint": "vue-cli-service lint",
+		"deploy": "yarn build && firebase deploy"
 	},
 	"dependencies": {
 		"core-js": "^2.6.5",
-		"gsap": "^3.5.1",
 		"tone": "^14.7.39",
 		"vue": "^2.6.10",
 		"vuex": "^3.0.1"
