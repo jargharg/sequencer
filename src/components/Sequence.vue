@@ -1,22 +1,21 @@
 <template>
-	<ul class="sequence">
+	<ul :class="['sequence', { [`sequence--${stepColor}`]: stepColor }]">
 		<li
-			v-for="(stepValue, stepIndex) in sequence"
-			:key="`step-${sequenceKey}-${stepIndex}`"
+			v-for="(isStepSelected, stepIndex) in sequence"
+			:key="`step-${sequenceId}-${stepIndex}`"
 		>
 			<input
 				class="sequence__checkbox"
 				type="checkbox"
-				:id="`stepInput-${sequenceKey}-${stepIndex}`"
+				:id="`stepInput-${sequenceId}-${stepIndex}`"
 				v-model="sequence[stepIndex]"
 			/>
 			<label
-				:for="`stepInput-${sequenceKey}-${stepIndex}`"
+				:for="`stepInput-${sequenceId}-${stepIndex}`"
 				:class="[
 					'sequence__step',
-					{ [`sequence__step--${stepColor}`]: stepColor },
-					{ 'sequence__step--selected': stepValue },
-					{ 'sequence__step--active': stepIndex === activeStep },
+					{ 'sequence__step--selected': isStepSelected },
+					{ 'sequence__step--active': activeStep === stepIndex },
 				]"
 			>
 			</label>
@@ -37,11 +36,10 @@ export default {
 			type: String,
 			default: null,
 		},
-	},
-	data() {
-		return {
-			sequenceKey: Math.floor(Math.random() * 99999999),
-		};
+		sequenceId: {
+			type: [Number, String],
+			default: Math.random(),
+		},
 	},
 	computed: {
 		...mapState(['activeStep']),
@@ -51,6 +49,8 @@ export default {
 
 <style lang="scss" scoped>
 .sequence {
+	--background-color: #e08dac;
+
 	display: grid;
 	gap: 1px;
 	grid-template-columns: repeat(16, 1fr);
@@ -67,49 +67,56 @@ export default {
 		width: 100%;
 	}
 
+	&--yellow {
+		--background-color: #ffc100;
+	}
+
+	&--red {
+		--background-color: #ff3a20;
+	}
+
 	&__checkbox {
+		opacity: 0;
 		position: absolute;
 		width: 0;
-
-		&:checked + .sequence__step {
-			background: #e08dac;
-
-			&--yellow {
-				background: yellow;
-			}
-
-			&--red {
-				background: red;
-			}
-		}
 	}
 
 	&__step {
-		// border-radius: 50%;
+		$root: &;
 		background: #222;
 		cursor: pointer;
 		display: block;
 		outline: none;
 		padding-bottom: 100%;
-		// transition: 1.5s opacity;
-		width: 100%;
 		position: relative;
+		width: 100%;
 
-		span {
-			position: absolute;
-			color: white;
-			opacity: 0.5;
-			pointer-events: none;
-			width: 100%;
-			height: 100%;
-			display: flex;
-			justify-content: center;
-			align-items: center;
+		&--selected {
+			background: var(--background-color);
+			opacity: 0.8;
+			position: relative;
+			transition: opacity 0.5s;
+
+			&::after {
+				background: var(--background-color);
+				box-shadow: 0 0 20px 2px var(--background-color);
+				content: '';
+				height: 100%;
+				opacity: 0;
+				position: absolute;
+				transition: opacity 0.5s;
+				width: 100%;
+			}
 		}
 
 		&--active {
-			opacity: 0.5;
-			// transition: 0.1s opacity;
+			opacity: 0.8;
+
+			&#{$root}--selected,
+			&#{$root}--selected::after {
+				opacity: 1;
+				transition: opacity 0.05s;
+			}
 		}
 	}
 }

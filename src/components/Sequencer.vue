@@ -1,13 +1,21 @@
 <template>
 	<ul class="sequencer">
-		<li v-for="({ sequence }, sequenceIndex) in sequences.tuned" :key="sequenceIndex">
-			<Sequence :sequence="sequence" />
+		<li v-for="({ sequence }, index) in sequences.tuned" :key="index">
+			<Sequence v-bind="{ sequence, sequenceId: index }" />
 		</li>
 		<li>
-			<Sequence :sequence="sequences.drums.snare.sequence" step-color="yellow" />
+			<Sequence
+				sequence-id="snare"
+				step-color="yellow"
+				:sequence="sequences.drums.snare.sequence"
+			/>
 		</li>
 		<li>
-			<Sequence :sequence="sequences.drums.kick.sequence" step-color="red" />
+			<Sequence
+				sequence-id="kick"
+				step-color="red"
+				:sequence="sequences.drums.kick.sequence"
+			/>
 		</li>
 	</ul>
 </template>
@@ -37,7 +45,7 @@ export default {
 .sequencer {
 	align-items: stretch;
 	background: #888;
-	box-shadow: 0 0 50px 10px #000;
+	box-shadow: 0 0 100px 20px #0009;
 	display: flex;
 	flex-direction: column;
 	gap: 1px;
