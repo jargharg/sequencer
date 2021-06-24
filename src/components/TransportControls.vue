@@ -31,11 +31,11 @@
 import { mapState } from 'vuex';
 
 export default {
-	computed: mapState(['playing', 'toneInitialised']),
+	computed: mapState(['playing', 'audioInitialised']),
 	methods: {
 		togglePlaying() {
-			if (!this.toneInitialised) {
-				this.$store.commit('initialiseTone');
+			if (!this.audioInitialised) {
+				this.$store.commit('initialiseAudio');
 			}
 			this.$store.commit('togglePlaying');
 		},

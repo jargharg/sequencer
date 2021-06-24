@@ -21,7 +21,6 @@ export default {
 	components: { Sequence },
 	computed: mapState(['sequences', 'activeStep']),
 	mounted() {
-		Transport.bpm.value = 140;
 		Transport.scheduleRepeat((time) => {
 			this.$store.dispatch('step');
 			this.$store.getters.allSequences.forEach(({ sequence, sound }) => {

@@ -1,25 +1,25 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import { start, Transport } from 'tone';
+
 import { getRandomScale, getEmptySequence } from './helpers';
-import { kick, snare, synth } from './constants/synths';
 import { Sequence } from './classes';
-import { SEQUENCE_LENGTH, CHANCE_OF_STEP } from './constants';
+import { KICK, SNARE, SYNTH, SEQUENCE_LENGTH, CHANCE_OF_STEP } from './constants';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
 	state: {
 		activeStep: -1,
+		audioInitialised: false,
 		playing: false,
 		sequences: {
-			tuned: getRandomScale().map((note) => new Sequence(synth, note)),
+			tuned: getRandomScale().map((note) => new Sequence(SYNTH, note)),
 			drums: {
-				kick: new Sequence(kick, 'e1'),
-				snare: new Sequence(snare, null),
+				kick: new Sequence(KICK, 'e1'),
+				snare: new Sequence(SNARE, null),
 			},
 		},
-		toneInitialised: false,
 	},
 	getters: {
 		allSequences(state) {
@@ -31,8 +31,9 @@ export default new Vuex.Store({
 		},
 	},
 	mutations: {
-		initialiseTone(state) {
-			state.toneInitialised = true;
+		initialiseAudio(state) {
+			state.audioInitialised = true;
+			Transport.bpm.value = 140;
 			start();
 		},
 		togglePlaying(state) {
