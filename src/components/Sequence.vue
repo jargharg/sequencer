@@ -12,11 +12,12 @@
 			/>
 			<label
 				:for="`stepInput-${sequenceKey}-${stepIndex}`"
-				class="sequence__step"
-				:class="{
-					'sequence__step--selected': stepValue,
-					'sequence__step--active': stepIndex === activeStep,
-				}"
+				:class="[
+					'sequence__step',
+					{ [`sequence__step--${stepColor}`]: stepColor },
+					{ 'sequence__step--selected': stepValue },
+					{ 'sequence__step--active': stepIndex === activeStep },
+				]"
 			>
 			</label>
 		</li>
@@ -29,7 +30,12 @@ import { mapState } from 'vuex';
 export default {
 	props: {
 		sequence: {
-			default: [],
+			type: Array,
+			default: () => [],
+		},
+		stepColor: {
+			type: String,
+			default: null,
 		},
 	},
 	data() {
@@ -64,6 +70,18 @@ export default {
 	&__checkbox {
 		position: absolute;
 		width: 0;
+
+		&:checked + .sequence__step {
+			background: #e08dac;
+
+			&--yellow {
+				background: yellow;
+			}
+
+			&--red {
+				background: red;
+			}
+		}
 	}
 
 	&__step {
@@ -87,10 +105,6 @@ export default {
 			display: flex;
 			justify-content: center;
 			align-items: center;
-		}
-
-		&--selected {
-			background: #e08dac;
 		}
 
 		&--active {

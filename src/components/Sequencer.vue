@@ -4,10 +4,10 @@
 			<Sequence :sequence="sequence" />
 		</li>
 		<li>
-			<Sequence :sequence="sequences.drums.snare.sequence" />
+			<Sequence :sequence="sequences.drums.snare.sequence" step-color="yellow" />
 		</li>
 		<li>
-			<Sequence :sequence="sequences.drums.kick.sequence" />
+			<Sequence :sequence="sequences.drums.kick.sequence" step-color="red" />
 		</li>
 	</ul>
 </template>
@@ -15,7 +15,6 @@
 <script>
 import { mapState } from 'vuex';
 import { Transport } from 'tone';
-import gsap from 'gsap';
 import Sequence from './Sequence';
 
 export default {
